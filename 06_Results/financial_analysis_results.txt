@@ -1,0 +1,94 @@
+================================================================================
+          FINANCIAL TRANSACTION & CUSTOMER ANALYTICS SYSTEM REPORT          
+================================================================================
+Generated On: 2026-09-02
+Database Engine: MS SQL Server / FinancialAnalyticsDB Database Engine
+================================================================
+
+--- SECTION 1: EXECUTIVE FINANCIAL OVERVIEW ---
+Total Transactions Processed : 25,000
+Total Transaction Revenue    : $1,724,423.32
+Average Transaction Value    : $68.98
+Active Unique Customers      : 909
+Total Flagged Fraud Txns     : 83 (0.33%)
+Total Fraud Exposure Amount  : $47,788.71
+
+--- SECTION 2: TOP 10 HIGH-VALUE CUSTOMERS ---
+ customer_id       full_name gender  age age_group           city state  TxnVolume  TotalSpend   AvgSpend
+         703   Stacy Lambert      F   45     35-49 Mulberry Grove    IL         45     8229.99 182.888667
+         287   Alyssa Morgan      F   57     50-64        Gadsden    AL         33     8037.16 243.550303
+         688   William Perry      M   26     25-34 Denham Springs    LA         41     8020.26 195.616098
+         179    Travis Hayes      M   20       <25         Conway    NH         39     7685.07 197.053077
+         567 Margaret Curtis      F   35     35-49       Florence    MS         73     7375.32 101.031781
+         229       Dawn Gray      F   15       <25         Topeka    KS         51     6897.76 135.250196
+         401     Laura Casey      F   61     50-64        Steuben    ME         46     6795.45 147.727174
+         507    Shannon Bell      F   43     35-49     Georgetown    MN         45     6771.59 150.479778
+         244  Gregory Graham      M   39     35-49        Methuen    MA         45     6712.64 149.169778
+         903 Dennis Davidson      M   61     50-64    Springville    NY         12     6463.80 538.650000
+
+--- SECTION 3: CUSTOMER DEMOGRAPHIC SPENDING MATRIX ---
+age_group gender  CustomerCount  TxnVolume  TotalRevenue  AvgSpend
+    25-34      F             89       2885     206051.85 71.421785
+    25-34      M             87       2205     165408.68 75.015274
+    35-49      F            136       5085     368999.25 72.566224
+    35-49      M            125       3493     265549.97 76.023467
+    50-64      F            104       2339     163516.04 69.908525
+    50-64      M            129       2657     163159.56 61.407437
+      65+      F             97       2200     138708.70 63.049409
+      65+      M             81       1754     104606.60 59.638883
+      <25      F             34       1300      82269.05 63.283885
+      <25      M             27       1082      66153.62 61.140129
+
+--- SECTION 4: CATEGORY & SUPER-CATEGORY REVENUE ANALYSIS ---
+         super_category       category  Volume   Revenue  RevenueSharePct  AvgTicketSize
+         Grocery & Food    grocery_pos    2289 262548.26            15.23     114.699983
+        Retail Shopping   shopping_net    1917 172797.55            10.02      90.139567
+        Retail Shopping   shopping_pos    2257 171587.42             9.95      76.024555
+         Transportation  gas_transport    2402 151648.00             8.79      63.134055
+          Home & Family           home    2372 136866.84             7.94      57.701029
+          Home & Family      kids_pets    2260 133195.68             7.72      58.936142
+Entertainment & Leisure  entertainment    1779 114499.19             6.64      64.361546
+          Miscellaneous       misc_pos    1571 105359.51             6.11      67.065251
+          Miscellaneous       misc_net    1185  94351.54             5.47      79.621553
+   Dining & Restaurants    food_dining    1819  92376.68             5.36      50.784321
+      Health & Wellness health_fitness    1636  88391.33             5.13      54.028930
+      Health & Wellness  personal_care    1781  85757.22             4.97      48.151162
+       Travel & Lodging         travel     840  66564.51             3.86      79.243464
+         Grocery & Food    grocery_net     892  48479.59             2.81      54.349316
+
+--- SECTION 5: PAYMENT METHOD PERFORMANCE & PREFERENCE ---
+payment_method_name channel_type  Volume  TotalRevenue  AvgAmount  FraudCount
+      Mobile Wallet      Digital    5106     352059.98  68.950251          18
+    Contactless POS          POS    4876     345280.38  70.812219          11
+        Credit Card         Card    5042     343725.84  68.172519          18
+UPI / Bank Transfer      Digital    4948     342758.67  69.272165          19
+         Debit Card         Card    5028     340598.45  67.740344          17
+
+--- SECTION 6: GEOGRAPHIC REVENUE BY US REGION & TOP 10 STATES ---
+US REGIONAL BREAKDOWN:
+   region  UniqueCustomers  Volume   Revenue  AvgSpend
+    South              332    9470 654924.93 69.157860
+  Midwest              267    7034 483000.08 68.666488
+Northeast              172    4856 344978.40 71.041680
+     West              135    3568 237191.38 66.477405
+    Other                3      72   4328.53 60.118472
+
+TOP 10 STATES BY REVENUE:
+state    region  Volume   Revenue  AvgSpend
+   TX     South    1860 125130.60 67.274516
+   NY Northeast    1685 117125.98 69.510967
+   PA Northeast    1591 104915.81 65.943312
+   CA      West    1044  68630.71 65.738228
+   OH   Midwest     938  68373.78 72.893156
+   IL   Midwest     811  60523.53 74.628274
+   MI   Midwest     886  57340.95 64.718905
+   FL     South     818  56426.45 68.980990
+   AL     South     805  54089.94 67.192472
+   MN   Midwest     630  51121.40 81.145079
+
+--- SECTION 7: RISK & ANOMALY CATEGORY BREAKDOWN ---
+         risk_category  TransactionCount  TotalAmount   AvgAmount  VolumePct
+                Normal             24734   1486259.03   60.089716      98.94
+High-Value Transaction                67    116925.07 1745.150299       0.27
+ Suspicious High-Value               116     73450.51  633.194052       0.46
+         Flagged Fraud                83     47788.71  575.767590       0.33

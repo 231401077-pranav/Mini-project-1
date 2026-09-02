@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Transaction & Customer Analytics System - Power BI Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --card-bg: #334155;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --accent-red: #f87171;
+            --accent-amber: #fbbf24;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #475569;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 260px; background-color: #0b1329; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; }
+        .sidebar-header i { font-size: 24px; color: var(--accent-blue); }
+        .sidebar-header h2 { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        
+        .nav-tabs { list-style: none; padding: 15px 10px; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .nav-item button { width: 100%; padding: 12px 16px; background: transparent; border: none; border-radius: 8px; color: var(--text-muted); text-align: left; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+        .nav-item button:hover { background-color: rgba(56, 189, 248, 0.1); color: var(--accent-blue); }
+        .nav-item button.active { background-color: var(--accent-blue); color: #0f172a; font-weight: 700; }
+        
+        .sidebar-footer { padding: 15px; border-top: 1px solid var(--border-color); font-size: 12px; color: var(--text-muted); text-align: center; }
+
+        /* Main Content Container */
+        .main-container { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .top-bar { padding: 15px 30px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .top-bar-left { display: flex; align-items: center; gap: 15px; }
+        .top-bar h1 { font-size: 20px; font-weight: 700; color: var(--accent-blue); }
+        .badge { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid var(--accent-blue); }
+        
+        /* Faculty QR Verification Button */
+        .qr-btn { background: linear-gradient(135deg, #0284c7, #38bdf8); color: #0f172a; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3); }
+        .qr-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(56, 189, 248, 0.5); }
+
+        /* Content Pages */
+        .page { display: none; padding: 25px; gap: 20px; flex-direction: column; }
+        .page.active { display: flex; }
+
+        /* KPI Cards Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .kpi-card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent-blue); }
+        .kpi-card.green::before { background: var(--accent-green); }
+        .kpi-card.purple::before { background: var(--accent-purple); }
+        .kpi-card.red::before { background: var(--accent-red); }
+        .kpi-card.amber::before { background: var(--accent-amber); }
+        
+        .kpi-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .kpi-value { font-size: 24px; font-weight: 800; color: var(--text-main); }
+        .kpi-sub { font-size: 11px; color: var(--text-muted); }
+
+        /* Charts Grid */
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .chart-box { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .chart-box.full-width { grid-column: span 2; }
+        .chart-title { font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .chart-container { position: relative; height: 280px; width: 100%; }
+
+        /* Table styles */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        .data-table th { background-color: #0f172a; padding: 10px 12px; color: var(--accent-blue); border-bottom: 2px solid var(--border-color); }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        .data-table tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+        .tag-fraud { background: rgba(248, 113, 113, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .tag-normal { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .tag-high { background: rgba(251, 191, 36, 0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+
+        /* Modal Popup Styles */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-card { background: var(--panel-bg); border: 1px solid var(--accent-blue); border-radius: 16px; width: 520px; max-width: 90%; padding: 25px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal-close { position: absolute; top: 15px; right: 20px; background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+        .modal-close:hover { color: var(--accent-red); }
+        
+        .modal-header { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .modal-header i { font-size: 24px; color: var(--accent-blue); }
+        .modal-header h3 { font-size: 18px; font-weight: 700; color: var(--text-main); }
+        
+        .modal-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 12px; background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .modal-detail-item span { color: var(--text-muted); font-weight: 600; }
+        .modal-detail-item strong { color: var(--accent-blue); display: block; margin-top: 2px; }
+
+        .modal-qr-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; background: #0f172a; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .modal-qr-container img { width: 150px; height: 150px; border-radius: 8px; border: 4px solid #ffffff; }
+        .modal-qr-text { font-size: 12px; color: var(--text-muted); }
+
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-action-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; display: inline-block; }
+        .btn-primary { background: var(--accent-blue); color: #0f172a; }
+        .btn-secondary { background: var(--card-bg); color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-chart-pie"></i>
+            <h2>Power BI Financials</h2>
+        </div>
+        <ul class="nav-tabs">
+            <li class="nav-item"><button class="active" onclick="switchPage('page1', this)"><i class="fa-solid fa-gauge-high"></i> Executive Overview</button></li>
+            <li class="nav-item"><button onclick="switchPage('page2', this)"><i class="fa-solid fa-users"></i> Customer Analytics</button></li>
+            <li class="nav-item"><button onclick="switchPage('page3', this)"><i class="fa-solid fa-tags"></i> Category & Payment</button></li>
+            <li class="nav-item"><button onclick="switchPage('page4', this)"><i class="fa-solid fa-earth-americas"></i> Geographical Analytics</button></li>
+            <li class="nav-item"><button onclick="switchPage('page5', this)"><i class="fa-solid fa-shield-halved"></i> Risk & Anomaly Analytics</button></li>
+        </ul>
+        <div class="sidebar-footer">
+            <p>Dataset: 25,000 Records</p>
+            <p>Status: Live Connected</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <h1 id="page-title">Executive Financial Overview</h1>
+                <span class="badge">Power BI 5-Page Report</span>
+            </div>
+            <button onclick="openQRModal()" class="qr-btn">
+                📱 Faculty QR Verification
+            </button>
+        </div>
+
+        <!-- PAGE 1: EXECUTIVE OVERVIEW -->
+        <div id="page1" class="page active">
+            <div class="kpi-grid">
+                <div class="kpi-card green">
+                    <div class="kpi-title">Total Revenue</div>
+                    <div class="kpi-value">$1,724,423</div>
+                    <div class="kpi-sub">25,000 Total Transactions</div>
+                </div>
+                <div class="kpi-card blue">
+                    <div class="kpi-title">Avg Transaction Value</div>
+                    <div class="kpi-value">$68.98</div>
+                    <div class="kpi-sub">Range: $1.00 - $6,600.44</div>
+                </div>
+                <div class="kpi-card purple">
+                    <div class="kpi-title">Active Customers</div>
+                    <div class="kpi-value">909</div>
+                    <div class="kpi-sub">Across 50 US States</div>
+                </div>
+                <div class="kpi-card red">
+                    <div class="kpi-title">Flagged Fraud Exposure</div>
+                    <div class="kpi-value">$47,788.71</div>
+                    <div class="kpi-sub">83 Confirmed Fraud Txns (0.33%)</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-box full-width">
+                    <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Category Revenue Breakdown</div>
+                    <div class="chart-container">
+                        <canvas id="categoryRevenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title"><i class="fa-solid fa-wallet"></i> Revenue Share by Payment Method</div>
+                    <div class="chart-container">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title"><i class="fa-solid fa-map-location-dot"></i> Regional Revenue Distribution</div>
+                    <div class="chart-container">
+                        <canvas id="regionRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 2: CUSTOMER ANALYTICS -->
+        <div id="page2" class="page">
+            <div class="kpi-grid">
+                <div class="kpi-card green">
+                    <div class="kpi-title">Top Customer Lifetime Spend</div>
+                    <div class="kpi-value">$8,229.99</div>
+                    <div class="kpi-sub">Stacy Lambert (45 txns)</div>
+                </div>
+                <div class="kpi-card blue">
+                    <div class="kpi-title">Avg Spend Per Customer</div>
+                    <div class="kpi-value">$1,897.05</div>
+                    <div class="kpi-sub">909 Active Customers</div>
+                </div>
+                <div class="kpi-card purple">
+                    <div class="kpi-title">Top Demographics Segment</div>
+                    <div class="kpi-value">Age 35-49 (Female)</div>
+                    <div class="kpi-sub">$368,999 Total Spend</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-box full-width">
+                    <div class="chart-title"><i class="fa-solid fa-users-line"></i> Spending by Age Group & Gender</div>
+                    <div class="chart-container">
+                        <canvas id="demoAgeGenderChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box full-width">
+                    <div class="chart-title"><i class="fa-solid fa-trophy"></i> Top 10 High-Value Customers Leaderboard</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Customer Name</th>
+                                <th>Gender</th>
+                                <th>Age / Group</th>
+                                <th>City, State</th>
+                                <th>Txn Volume</th>
+                                <th>Total Lifetime Spend</th>
+                                <th>Avg Spend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Stacy Lambert</td><td>F</td><td>45 (35-49)</td><td>Mulberry Grove, IL</td><td>45</td><td>$8,229.99</td><td>$182.89</td></tr>
+                            <tr><td>2</td><td>Alyssa Morgan</td><td>F</td><td>57 (50-64)</td><td>Gadsden, AL</td><td>33</td><td>$8,037.16</td><td>$243.55</td></tr>
+                            <tr><td>3</td><td>William Perry</td><td>M</td><td>26 (25-34)</td><td>Denham Springs, LA</td><td>41</td><td>$8,020.26</td><td>$195.62</td></tr>
+                            <tr><td>4</td><td>Travis Hayes</td><td>M</td><td>20 (&lt;25)</td><td>Conway, NH</td><td>39</td><td>$7,685.07</td><td>$197.05</td></tr>
+                            <tr><td>5</td><td>Margaret Curtis</td><td>F</td><td>35 (35-49)</td><td>Florence, MS</td><td>73</td><td>$7,375.32</td><td>$101.03</td></tr>
+                            <tr><td>6</td><td>Dawn Gray</td><td>F</td><td>15 (&lt;25)</td><td>Topeka, KS</td><td>51</td><td>$6,897.76</td><td>$135.25</td></tr>
+                            <tr><td>7</td><td>Laura Casey</td><td>F</td><td>61 (50-64)</td><td>Steuben, ME</td><td>46</td><td>$6,795.45</td><td>$147.73</td></tr>
+                            <tr><td>8</td><td>Shannon Bell</td><td>F</td><td>43 (35-49)</td><td>Georgetown, MN</td><td>45</td><td>$6,771.59</td><td>$150.48</td></tr>
+                            <tr><td>9</td><td>Gregory Graham</td><td>M</td><td>39 (35-49)</td><td>Methuen, MA</td><td>45</td><td>$6,712.64</td><td>$149.17</td></tr>
+                            <tr><td>10</td><td>Dennis Davidson</td><td>M</td><td>61 (50-64)</td><td>Springville, NY</td><td>12</td><td>$6,463.80</td><td>$538.65</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 3: CATEGORY & PAYMENT ANALYTICS -->
+        <div id="page3" class="page">
+            <div class="charts-grid">
+                <div class="chart-box full-width">
+                    <div class="chart-title"><i class="fa-solid fa-basket-shopping"></i> Super-Category Revenue Share</div>
+                    <div class="chart-container">
+                        <canvas id="superCategoryChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title"><i class="fa-solid fa-credit-card"></i> Payment Method Volume vs Revenue</div>
+                    <div class="chart-container">
+                        <canvas id="paymentVolumeRevenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title"><i class="fa-solid fa-tag"></i> Top Avg Ticket Size by Category</div>
+                    <div class="chart-container">
+                        <canvas id="avgTicketChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 4: GEOGRAPHICAL ANALYTICS -->
+        <div id="page4" class="page">
+            <div class="charts-grid">
+                <div class="chart-box full-width">
+                    <div class="chart-title"><i class="fa-solid fa-flag-usa"></i> Top 10 US States by Revenue</div>
+                    <div class="chart-container">
+                        <canvas id="topStatesChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box full-width">
+                    <div class="chart-title"><i class="fa-solid fa-location-dot"></i> Regional Revenue Matrix</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>US Region</th>
+                                <th>Unique Customers</th>
+                                <th>Transaction Volume</th>
+                                <th>Total Revenue</th>
+                                <th>Avg Transaction Spend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>South</td><td>332</td><td>9,470</td><td>$654,924.93</td><td>$69.16</td></tr>
+                            <tr><td>Midwest</td><td>267</td><td>7,034</td><td>$483,000.08</td><td>$68.67</td></tr>
+                            <tr><td>Northeast</td><td>172</td><td>4,856</td><td>$344,978.40</td><td>$71.04</td></tr>
+                            <tr><td>West</td><td>135</td><td>3,568</td><td>$237,191.38</td><td>$66.48</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 5: RISK & ANOMALY ANALYTICS -->
+        <div id="page5" class="page">
+            <div class="kpi-grid">
+                <div class="kpi-card red">
+                    <div class="kpi-title">Flagged Fraud Transactions</div>
+                    <div class="kpi-value">83</div>
+                    <div class="kpi-sub">$47,788.71 Exposure (0.33% rate)</div>
+                </div>
+                <div class="kpi-card amber">
+                    <div class="kpi-title">High-Value Transactions (&gt;$1k)</div>
+                    <div class="kpi-value">67</div>
+                    <div class="kpi-sub">$116,925.07 Total Value</div>
+                </div>
+                <div class="kpi-card purple">
+                    <div class="kpi-title">Suspicious High-Value Online</div>
+                    <div class="kpi-value">116</div>
+                    <div class="kpi-sub">$73,450.51 Exposure</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-box full-width">
+                    <div class="chart-title"><i class="fa-solid fa-triangle-exclamation"></i> Risk Category Distribution</div>
+                    <div class="chart-container">
+                        <canvas id="riskCategoryChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box full-width">
+                    <div class="chart-title"><i class="fa-solid fa-list-check"></i> Sample High-Risk & Fraud Anomalies Audit Log</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Txn Ref</th>
+                                <th>Customer</th>
+                                <th>Merchant</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Payment Method</th>
+                                <th>Risk Classification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>2da90c7d...</td><td>Jeff Elliott</td><td>Kirlin and Sons</td><td>personal_care</td><td>$2.86</td><td>Credit Card</td><td><span class="tag tag-normal">Normal</span></td></tr>
+                            <tr><td>8b291a4c...</td><td>Stacy Lambert</td><td>Rippin-Mann</td><td>shopping_net</td><td>$1,420.50</td><td>Mobile Wallet</td><td><span class="tag tag-high">High-Value Transaction</span></td></tr>
+                            <tr><td>7a10bf2e...</td><td>Alyssa Morgan</td><td>Heller-Zieme</td><td>misc_net</td><td>$840.10</td><td>UPI / Bank Transfer</td><td><span class="tag tag-high">Suspicious High-Value</span></td></tr>
+                            <tr><td>3c914e9f...</td><td>Dennis Davidson</td><td>Kutch Group</td><td>grocery_pos</td><td>$1,250.00</td><td>Contactless POS</td><td><span class="tag tag-fraud">Flagged Fraud</span></td></tr>
+                            <tr><td>9d0124ab...</td><td>William Perry</td><td>Bauch-Schumm</td><td>travel</td><td>$960.25</td><td>Debit Card</td><td><span class="tag tag-high">Suspicious High-Value</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FACULTY QR VERIFICATION MODAL -->
+    <div id="qrModal" class="modal-overlay" onclick="closeQRModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQRModal()">&times;</button>
+            <div class="modal-header">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h3>Faculty Project Verification</h3>
+            </div>
+            
+            <div class="modal-details">
+                <div class="modal-detail-item">
+                    <span>Project Name:</span>
+                    <strong>Financial Transaction Analytics</strong>
+                </div>
+                <div class="modal-detail-item">
+                    <span>Domain:</span>
+                    <strong>Financial Data Analytics</strong>
+                </div>
+                <div class="modal-detail-item">
+                    <span>SQL Database:</span>
+                    <strong>MS SQL - FinancialAnalyticsDB</strong>
+                </div>
+                <div class="modal-detail-item">
+                    <span>Dataset Size:</span>
+                    <strong>25,000 Records</strong>
+                </div>
+                <div class="modal-detail-item">
+                    <span>Power BI Asset:</span>
+                    <strong>03_PowerBI/Financial_Analytics.pbix</strong>
+                </div>
+                <div class="modal-detail-item">
+                    <span>Word Manual:</span>
+                    <strong>05_Documentation/...Report.docx</strong>
+                </div>
+            </div>
+
+            <div class="modal-qr-container">
+                <img src="../07_QR/Financial_Analytics_QR.png" alt="Project 1 QR Code">
+                <div class="modal-qr-text">
+                    Scan this QR code to access exclusive Project 1 resources & documentation
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <a href="https://github.com/user/Financial_Analytics_Project_1" target="_blank" class="modal-action-btn btn-primary">
+                    <i class="fa-solid fa-up-right-from-square"></i> Open Project Repository
+                </a>
+                <button onclick="closeQRModal()" class="modal-action-btn btn-secondary">
+                    Close Window
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openQRModal() {
+            document.getElementById('qrModal').style.display = 'flex';
+        }
+
+        function closeQRModal(e) {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+
+        function switchPage(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item button').forEach(b => b.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            btn.classList.add('active');
+            
+            const titles = {
+                'page1': 'Executive Financial Overview',
+                'page2': 'Customer Analytics & Leaderboard',
+                'page3': 'Transaction & Category Analytics',
+                'page4': 'Geographical Analytics',
+                'page5': 'Risk & Anomaly Analytics'
+            };
+            document.getElementById('page-title').innerText = titles[pageId];
+        }
+
+        window.onload = function() {
+            new Chart(document.getElementById('categoryRevenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Grocery POS', 'Shopping Net', 'Shopping POS', 'Gas / Transport', 'Home', 'Kids / Pets', 'Entertainment', 'Misc POS', 'Misc Net', 'Food / Dining'],
+                    datasets: [{
+                        label: 'Total Revenue ($)',
+                        data: [262548, 172797, 171587, 151648, 136866, 133195, 114499, 105359, 94351, 92376],
+                        backgroundColor: '#38bdf8'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('paymentMethodChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Mobile Wallet', 'Contactless POS', 'Credit Card', 'UPI / Bank Transfer', 'Debit Card'],
+                    datasets: [{
+                        data: [352059, 345280, 343725, 342758, 340598],
+                        backgroundColor: ['#38bdf8', '#4ade80', '#c084fc', '#fbbf24', '#f87171']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('regionRevenueChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['South', 'Midwest', 'Northeast', 'West'],
+                    datasets: [{
+                        data: [654924, 483000, 344978, 237191],
+                        backgroundColor: ['#4ade80', '#38bdf8', '#c084fc', '#fbbf24']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('demoAgeGenderChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['<25', '25-34', '35-49', '50-64', '65+'],
+                    datasets: [
+                        { label: 'Female Spend ($)', data: [82269, 206051, 368999, 163516, 138708], backgroundColor: '#c084fc' },
+                        { label: 'Male Spend ($)', data: [66153, 165408, 265549, 163159, 104606], backgroundColor: '#38bdf8' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('superCategoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Grocery & Food', 'Retail Shopping', 'Home & Family', 'Transportation', 'Miscellaneous', 'Health & Wellness', 'Entertainment', 'Dining', 'Travel'],
+                    datasets: [{ label: 'Revenue ($)', data: [311027, 344384, 270062, 151648, 199711, 174114, 114499, 92376, 66564], backgroundColor: '#4ade80' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('paymentVolumeRevenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Mobile Wallet', 'Contactless POS', 'Credit Card', 'UPI / Bank Transfer', 'Debit Card'],
+                    datasets: [{ label: 'Volume (Txns)', data: [5106, 4876, 5042, 4948, 5028], backgroundColor: '#fbbf24' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('avgTicketChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Grocery POS', 'Shopping Net', 'Travel', 'Shopping POS', 'Gas / Transport', 'Misc POS', 'Entertainment'],
+                    datasets: [{ label: 'Avg Ticket ($)', data: [114.70, 90.14, 79.24, 76.02, 63.13, 67.07, 64.36], backgroundColor: '#f87171' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('topStatesChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Texas (TX)', 'New York (NY)', 'Pennsylvania (PA)', 'California (CA)', 'Ohio (OH)', 'Illinois (IL)', 'Michigan (MI)', 'Florida (FL)', 'Alabama (AL)', 'Minnesota (MN)'],
+                    datasets: [{ label: 'Revenue ($)', data: [125130, 117125, 104915, 68630, 68373, 60523, 57340, 56426, 54089, 51121], backgroundColor: '#38bdf8' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            new Chart(document.getElementById('riskCategoryChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Normal Transactions', 'High-Value (> $1k)', 'Suspicious High-Value Online', 'Flagged Fraud'],
+                    datasets: [{ data: [1486259, 116925, 73450, 47788], backgroundColor: ['#4ade80', '#fbbf24', '#c084fc', '#f87171'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        };
+    </script>
+</body>
+</html>

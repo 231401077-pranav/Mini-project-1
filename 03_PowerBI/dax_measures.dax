@@ -1,0 +1,160 @@
+// ============================================================================
+// POWER BI DAX MEASURES SPECIFICATION FILE
+// Project: Financial Transaction & Customer Analytics System
+// File: dax_measures.dax
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// SECTION 1: EXECUTIVE FINANCIAL OVERVIEW MEASURES
+// ----------------------------------------------------------------------------
+
+[Total Revenue] = 
+SUM(FactTransactions[amount])
+
+[Total Transactions] = 
+COUNTROWS(FactTransactions)
+
+[Average Transaction Value] = 
+AVERAGE(FactTransactions[amount])
+
+[Active Customers] = 
+DISTINCTCOUNT(FactTransactions[customer_id])
+
+[Max Transaction Value] = 
+MAX(FactTransactions[amount])
+
+[Min Transaction Value] = 
+MIN(FactTransactions[amount])
+
+[Revenue Per Customer] = 
+DIVIDE([Total Revenue], [Active Customers], 0)
+
+[Avg Transactions Per Customer] = 
+DIVIDE([Total Transactions], [Active Customers], 0)
+
+// ----------------------------------------------------------------------------
+// SECTION 2: CUSTOMER ANALYTICS & RANKING MEASURES
+// ----------------------------------------------------------------------------
+
+[High Value Customer Threshold] = 5000
+
+[High Value Customer Count] = 
+CALCULATE(
+    [Active Customers],
+    FILTER(
+        VALUES(DimCustomers[customer_id]),
+        [Total Revenue] >= [High Value Customer Threshold]
+    )
+)
+
+[Customer Rank by Revenue] = 
+IF(
+    HASONEVALUE(DimCustomers[customer_id]),
+    RANKX(
+        ALL(DimCustomers),
+        [Total Revenue],
+        ,
+        DESC,
+        Dense
+    )
+)
+
+[Top 10 Customers Revenue] = 
+CALCULATE(
+    [Total Revenue],
+    TOPN(10, ALL(DimCustomers), [Total Revenue], DESC)
+)
+
+// ----------------------------------------------------------------------------
+// SECTION 3: CATEGORY & PAYMENT METHOD MEASURES
+// ----------------------------------------------------------------------------
+
+[Category Revenue Share %] = 
+DIVIDE(
+    [Total Revenue],
+    CALCULATE([Total Revenue], ALL(DimCategories)),
+    0
+)
+
+[Top Category Name] = 
+TOPN(
+    1,
+    VALUES(DimCategories[category]),
+    [Total Revenue],
+    DESC
+)
+
+[Digital Payment Revenue] = 
+CALCULATE(
+    [Total Revenue],
+    DimPaymentMethods[channel_type] = "Digital"
+)
+
+[Digital Payment %] = 
+DIVIDE([Digital Payment Revenue], [Total Revenue], 0)
+
+// ----------------------------------------------------------------------------
+// SECTION 4: GEOGRAPHIC ANALYTICS MEASURES
+// ----------------------------------------------------------------------------
+
+[State Revenue Share %] = 
+DIVIDE(
+    [Total Revenue],
+    CALCULATE([Total Revenue], ALL(DimLocations[state])),
+    0
+)
+
+[Top State by Revenue] = 
+TOPN(
+    1,
+    VALUES(DimLocations[state]),
+    [Total Revenue],
+    DESC
+)
+
+// ----------------------------------------------------------------------------
+// SECTION 5: RISK & FRAUD ANOMALY MEASURES
+// ----------------------------------------------------------------------------
+
+[Total Fraud Count] = 
+CALCULATE(
+    COUNTROWS(FactTransactions),
+    FactTransactions[is_fraud] = 1
+)
+
+[Fraud Rate %] = 
+DIVIDE([Total Fraud Count], [Total Transactions], 0) * 100
+
+[Total Fraud Exposure Amount] = 
+CALCULATE(
+    SUM(FactTransactions[amount]),
+    FactTransactions[is_fraud] = 1
+)
+
+[Suspicious High Value Count] = 
+CALCULATE(
+    COUNTROWS(FactTransactions),
+    FactTransactions[risk_category] = "Suspicious High-Value"
+)
+
+[High Value Outlier Count] = 
+CALCULATE(
+    COUNTROWS(FactTransactions),
+    FactTransactions[risk_category] = "High-Value Transaction"
+)
+
+// ----------------------------------------------------------------------------
+// SECTION 6: TIME INTELLIGENCE & MOM DAX MEASURES
+// ----------------------------------------------------------------------------
+
+[Prior Period Revenue] = 
+CALCULATE(
+    [Total Revenue],
+    DATEADD(DimDates[transaction_date], -1, MONTH)
+)
+
+[MoM Revenue Growth] = 
+[Total Revenue] - [Prior Period Revenue]
+
+[MoM Revenue Growth %] = 
+DIVIDE([MoM Revenue Growth], [Prior Period Revenue], 0) * 100
