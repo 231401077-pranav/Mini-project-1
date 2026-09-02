@@ -84,7 +84,7 @@
 
         /* Modal Popup Styles */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-card { background: var(--panel-bg); border: 1px solid var(--accent-blue); border-radius: 16px; width: 520px; max-width: 90%; padding: 25px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-card { background: var(--panel-bg); border: 1px solid var(--accent-blue); border-radius: 16px; width: 560px; max-width: 90%; padding: 25px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .modal-close { position: absolute; top: 15px; right: 20px; background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
         .modal-close:hover { color: var(--accent-red); }
@@ -93,9 +93,9 @@
         .modal-header i { font-size: 24px; color: var(--accent-blue); }
         .modal-header h3 { font-size: 18px; font-weight: 700; color: var(--text-main); }
         
-        .modal-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 12px; background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .modal-detail-item span { color: var(--text-muted); font-weight: 600; }
-        .modal-detail-item strong { color: var(--accent-blue); display: block; margin-top: 2px; }
+        .modal-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 12px; background: #0f172a; padding: 14px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .modal-detail-item span { color: var(--text-muted); font-weight: 600; display: block; font-size: 11px; }
+        .modal-detail-item strong { color: var(--accent-blue); display: block; margin-top: 2px; font-size: 12px; }
 
         .modal-qr-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; background: #0f172a; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
         .modal-qr-container img { width: 150px; height: 150px; border-radius: 8px; border: 4px solid #ffffff; }
@@ -113,18 +113,18 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <i class="fa-solid fa-chart-pie"></i>
-            <h2>Power BI Financials</h2>
+            <h2>Financial Analytics</h2>
         </div>
         <ul class="nav-tabs">
-            <li class="nav-item"><button class="active" onclick="switchPage('page1', this)"><i class="fa-solid fa-gauge-high"></i> Executive Overview</button></li>
-            <li class="nav-item"><button onclick="switchPage('page2', this)"><i class="fa-solid fa-users"></i> Customer Analytics</button></li>
-            <li class="nav-item"><button onclick="switchPage('page3', this)"><i class="fa-solid fa-tags"></i> Category & Payment</button></li>
-            <li class="nav-item"><button onclick="switchPage('page4', this)"><i class="fa-solid fa-earth-americas"></i> Geographical Analytics</button></li>
-            <li class="nav-item"><button onclick="switchPage('page5', this)"><i class="fa-solid fa-shield-halved"></i> Risk & Anomaly Analytics</button></li>
+            <li class="nav-item"><button class="active" onclick="switchPage('page1', this)"><i class="fa-solid fa-gauge-high"></i> Dashboard</button></li>
+            <li class="nav-item"><button onclick="switchPage('page2', this)"><i class="fa-solid fa-users"></i> Customers</button></li>
+            <li class="nav-item"><button onclick="switchPage('page3', this)"><i class="fa-solid fa-tags"></i> Transactions</button></li>
+            <li class="nav-item"><button onclick="switchPage('page4', this)"><i class="fa-solid fa-earth-americas"></i> Geography</button></li>
+            <li class="nav-item"><button onclick="switchPage('page5', this)"><i class="fa-solid fa-shield-halved"></i> Risk Analysis</button></li>
         </ul>
         <div class="sidebar-footer">
             <p>Dataset: 25,000 Records</p>
-            <p>Status: Live Connected</p>
+            <p>Status: Live SQL Connection</p>
         </div>
     </div>
 
@@ -140,7 +140,7 @@
             </button>
         </div>
 
-        <!-- PAGE 1: EXECUTIVE OVERVIEW -->
+        <!-- PAGE 1: DASHBOARD OVERVIEW -->
         <div id="page1" class="page active">
             <div class="kpi-grid">
                 <div class="kpi-card green">
@@ -187,7 +187,7 @@
             </div>
         </div>
 
-        <!-- PAGE 2: CUSTOMER ANALYTICS -->
+        <!-- PAGE 2: CUSTOMERS -->
         <div id="page2" class="page">
             <div class="kpi-grid">
                 <div class="kpi-card green">
@@ -246,7 +246,7 @@
             </div>
         </div>
 
-        <!-- PAGE 3: CATEGORY & PAYMENT ANALYTICS -->
+        <!-- PAGE 3: TRANSACTIONS -->
         <div id="page3" class="page">
             <div class="charts-grid">
                 <div class="chart-box full-width">
@@ -270,7 +270,7 @@
             </div>
         </div>
 
-        <!-- PAGE 4: GEOGRAPHICAL ANALYTICS -->
+        <!-- PAGE 4: GEOGRAPHY -->
         <div id="page4" class="page">
             <div class="charts-grid">
                 <div class="chart-box full-width">
@@ -302,7 +302,7 @@
             </div>
         </div>
 
-        <!-- PAGE 5: RISK & ANOMALY ANALYTICS -->
+        <!-- PAGE 5: RISK ANALYSIS -->
         <div id="page5" class="page">
             <div class="kpi-grid">
                 <div class="kpi-card red">
@@ -368,28 +368,32 @@
             
             <div class="modal-details">
                 <div class="modal-detail-item">
-                    <span>Project Name:</span>
-                    <strong>Financial Transaction Analytics</strong>
+                    <span>Project:</span>
+                    <strong>Financial Transaction & Customer Analytics System</strong>
                 </div>
                 <div class="modal-detail-item">
                     <span>Domain:</span>
                     <strong>Financial Data Analytics</strong>
                 </div>
                 <div class="modal-detail-item">
-                    <span>SQL Database:</span>
-                    <strong>MS SQL - FinancialAnalyticsDB</strong>
+                    <span>Database:</span>
+                    <strong>Microsoft SQL Server — FinancialAnalyticsDB</strong>
                 </div>
                 <div class="modal-detail-item">
-                    <span>Dataset Size:</span>
-                    <strong>25,000 Records</strong>
+                    <span>Records:</span>
+                    <strong>25,000</strong>
                 </div>
                 <div class="modal-detail-item">
-                    <span>Power BI Asset:</span>
-                    <strong>03_PowerBI/Financial_Analytics.pbix</strong>
+                    <span>Power BI:</span>
+                    <strong>Financial_Analytics.pbix</strong>
                 </div>
                 <div class="modal-detail-item">
-                    <span>Word Manual:</span>
-                    <strong>05_Documentation/...Report.docx</strong>
+                    <span>Tableau:</span>
+                    <strong>Financial_Analytics.twbx</strong>
+                </div>
+                <div class="modal-detail-item" style="grid-column: span 2;">
+                    <span>Documentation:</span>
+                    <strong>Financial_Analytics_Project_Report.docx</strong>
                 </div>
             </div>
 
